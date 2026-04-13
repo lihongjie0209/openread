@@ -15,9 +15,9 @@ import (
 
 tea "github.com/charmbracelet/bubbletea"
 openai "github.com/sashabaranov/go-openai"
-"zread-go/internal/agent"
-"zread-go/internal/models"
-"zread-go/internal/tui"
+"github.com/lihongjie0209/openread/internal/agent"
+"github.com/lihongjie0209/openread/internal/models"
+"github.com/lihongjie0209/openread/internal/tui"
 )
 
 // Config holds all settings for a single documentation run.

@@ -8,9 +8,9 @@ import (
 "runtime"
 
 "github.com/spf13/cobra"
-"zread-go/internal/browse"
-"zread-go/internal/config"
-"zread-go/internal/runner"
+"github.com/lihongjie0209/openread/internal/browse"
+"github.com/lihongjie0209/openread/internal/config"
+"github.com/lihongjie0209/openread/internal/runner"
 )
 
 var appVersion = "0.1.0"
@@ -19,7 +19,7 @@ func main() {
 root := &cobra.Command{
 Use:          "openread",
 Short:        "Turn any codebase into a beautiful wiki",
-Long:         "openread — open-source reimplementation of zread_cli.\nGenerates structured wiki documentation from your local codebase using an AI agent.\nSee https://github.com/your-username/openread for docs.",
+Long:         "openread — open-source reimplementation of zread_cli.\nGenerates structured wiki documentation from your local codebase using an AI agent.\nSee https://github.com/lihongjie0209/openread for docs.",
 SilenceUsage: true,
 }
 root.AddCommand(

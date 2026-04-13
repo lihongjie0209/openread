@@ -1,4 +1,4 @@
-module zread-go
+module github.com/lihongjie0209/openread
 
 go 1.24.2
 

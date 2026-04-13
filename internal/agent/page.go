@@ -8,9 +8,9 @@ import (
 	"strings"
 
 	openai "github.com/sashabaranov/go-openai"
-	"zread-go/internal/models"
-	"zread-go/internal/prompts"
-	"zread-go/internal/tools"
+	"github.com/lihongjie0209/openread/internal/models"
+	"github.com/lihongjie0209/openread/internal/prompts"
+	"github.com/lihongjie0209/openread/internal/tools"
 )
 
 var blogPattern = regexp.MustCompile(`(?s)<blog>(.*?)</blog>`)

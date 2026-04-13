@@ -68,7 +68,7 @@ Grab the latest release from [Releases](../../releases) and place it in your `PA
 **Option 2: Build from source**
 
 ```bash
-git clone https://github.com/your-username/openread.git
+git clone https://github.com/lihongjie0209/openread.git
 cd openread
 go build -o openread .
 ```

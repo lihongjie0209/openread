@@ -1,0 +1,28 @@
+# Binaries
+*.exe
+*.exe~
+openread
+zread-go
+zread
+
+# Output
+dist/
+
+# Environment / secrets
+.env
+.env.*
+
+# Generated docs (project-local)
+.zread/wiki/
+.zread/site/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+.zread

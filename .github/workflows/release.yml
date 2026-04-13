@@ -1,0 +1,136 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.goos }}/${{ matrix.goarch }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          # Linux
+          - goos: linux
+            goarch: amd64
+            suffix: ""
+          - goos: linux
+            goarch: arm64
+            suffix: ""
+          # macOS
+          - goos: darwin
+            goarch: amd64
+            suffix: ""
+          - goos: darwin
+            goarch: arm64
+            suffix: ""
+          # Windows
+          - goos: windows
+            goarch: amd64
+            suffix: ".exe"
+          - goos: windows
+            goarch: arm64
+            suffix: ".exe"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Build binary
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: "0"
+        run: |
+          BINARY="openread-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.suffix }}"
+          go build -trimpath -ldflags="-s -w -X main.appVersion=${{ github.ref_name }}" -o "${BINARY}" .
+          echo "BINARY=${BINARY}" >> $GITHUB_ENV
+
+      - name: Create archive
+        id: archive
+        run: |
+          GOOS="${{ matrix.goos }}"
+          GOARCH="${{ matrix.goarch }}"
+          TAG="${{ github.ref_name }}"
+          ARCHIVE="openread_${TAG}_${GOOS}_${GOARCH}"
+
+          if [ "$GOOS" = "windows" ]; then
+            zip "${ARCHIVE}.zip" "${BINARY}" README.md LICENSE
+            echo "asset=${ARCHIVE}.zip" >> $GITHUB_OUTPUT
+          else
+            tar -czf "${ARCHIVE}.tar.gz" "${BINARY}" README.md LICENSE
+            echo "asset=${ARCHIVE}.tar.gz" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.archive.outputs.asset }}
+          path: ${{ steps.archive.outputs.asset }}
+          retention-days: 1
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist/
+          merge-multiple: true
+
+      - name: Generate checksums
+        run: |
+          cd dist
+          sha256sum * > checksums.txt
+          cat checksums.txt
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          generate_release_notes: true
+          files: |
+            dist/*
+          body: |
+            ## openread ${{ github.ref_name }}
+
+            An open-source reimplementation of `zread_cli`, written in Go — no Node.js required.
+
+            ### Installation
+
+            **Linux / macOS**
+            ```bash
+            # Linux amd64
+            curl -L https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/openread_${{ github.ref_name }}_linux_amd64.tar.gz | tar xz
+            sudo mv openread-linux-amd64 /usr/local/bin/openread
+
+            # macOS arm64 (Apple Silicon)
+            curl -L https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/openread_${{ github.ref_name }}_darwin_arm64.tar.gz | tar xz
+            sudo mv openread-darwin-arm64 /usr/local/bin/openread
+            ```
+
+            **Windows** — download the `.zip` for your architecture, extract, and add to `PATH`.
+
+            ### Quick start
+            ```bash
+            openread config --api-key sk-xxxxxxxx
+            cd /path/to/your/project
+            openread generate
+            openread browse
+            ```
+
+            See [README](https://github.com/${{ github.repository }}#readme) for full documentation.
